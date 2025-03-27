@@ -62,8 +62,8 @@ export default function DashboardPage() {
           // If no user record exists, create one with default credits
           await supabase
             .from("users")
-            .insert([{ id: user.id, user_index: user.email?.split("@")[0], credits: 100, funds: 0 }])
-          setCredits(100)
+            .insert([{ id: user.id, user_index: user.email?.split("@")[0], credits: 0, funds: 0 }])
+          setCredits(0)
         }
       }
     }
@@ -73,7 +73,7 @@ export default function DashboardPage() {
 
   const addLogEntry = (message: string, type: "info" | "success" | "error" | "command" = "info") => {
     const newEntry = {
-      id: Date.now().toString(),
+      id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Ensure unique IDs
       timestamp: new Date().toISOString(),
       message,
       type,
@@ -122,11 +122,11 @@ Available commands:
       addLogEntry(
         `
 Available hacking methods:
-- Stealth: Silent operation, minimal traces (50 credits)
-- Brute-force: Aggressive approach, higher success rate (100 credits)
-- Grab: Quick data extraction (75 credits)
-- Steal: Complete account takeover (150 credits)
-- Retrieval: Recover lost credentials (125 credits)
+- Stealth: Silent operation, minimal traces (150 credits)
+- Brute-force: Aggressive approach, higher success rate (190 credits)
+- Grab: Quick data extraction (200 credits)
+- Steal: Complete account takeover (500 credits)
+- Retrieval: Recover lost credentials (150 credits)
       `,
         "info",
       )
@@ -198,29 +198,30 @@ Clues extracted from ${url}:
     let creditsCost = 0
     switch (formData.method) {
       case "Stealth":
-        creditsCost = 50
-        break
-      case "Brute-force":
-        creditsCost = 100
-        break
-      case "Grab":
-        creditsCost = 75
-        break
-      case "Steal":
         creditsCost = 150
         break
+      case "Brute-force":
+        creditsCost = 190
+        break
+      case "Grab":
+        creditsCost = 200
+        break
+      case "Steal":
+        creditsCost = 560
+        break
       case "Retrieval":
-        creditsCost = 125
+        creditsCost = 150
         break
       default:
-        creditsCost = 50
+        addLogEntry(`Error: Unrecognized method "${formData.method}"`, "error")
+        return
     }
 
     // Add costs for security options
-    if (formData.silentAttack) creditsCost += 25
-    if (formData.hideIpAddress) creditsCost += 30
-    if (formData.spamCode) creditsCost += 15
-    if (formData.spamNotif) creditsCost += 15
+    if (formData.silentAttack) creditsCost += 100
+    if (formData.hideIpAddress) creditsCost += 80
+    if (formData.spamCode) creditsCost += 100
+    if (formData.spamNotif) creditsCost += 100
 
     // Check if user has enough credits
     if (credits < creditsCost) {
@@ -312,11 +313,11 @@ Attack successful! Account credentials:
               <div key={entry.id} className="mb-2">
                 <span
                   className={`
-                  ${entry.type === "info" ? "text-hacker-primary" : ""}
-                  ${entry.type === "success" ? "text-green-400" : ""}
-                  ${entry.type === "error" ? "text-red-400" : ""}
-                  ${entry.type === "command" ? "text-hacker-accent" : ""}
-                `}
+                    ${entry.type === "info" ? "text-hacker-primary" : ""}
+                    ${entry.type === "success" ? "text-green-500" : ""}
+                    ${entry.type === "error" ? "text-red-500" : ""}
+                    ${entry.type === "command" ? "text-yellow-500" : ""}
+                  `}
                 >
                   {entry.message}
                 </span>
