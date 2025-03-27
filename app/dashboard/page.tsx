@@ -28,7 +28,7 @@ export default function DashboardPage() {
     {
       id: "1",
       timestamp: new Date().toISOString(),
-      message: 'Welcome to the Legion Hacking Terminal. Type "help" for available commands.',
+      message: 'Welcome to the Legion Terminal. Type "help" for available commands.',
       type: "info",
     },
   ])
@@ -180,6 +180,7 @@ Clues extracted from ${url}:
     if (url.includes("telegram.org") || url.includes("t.me")) return "Telegram"
     if (url.includes("linkedin.com")) return "LinkedIn"
     if (url.includes("bybit.com")) return "Bybit"
+    return "Unknown"
   }
 
   const handleFormChange = (field: string, value: any) => {
@@ -337,7 +338,7 @@ Attack successful! Account credentials:
       {/* Hacking Form */}
       <Card className="border border-hacker-primary/30 bg-hacker-terminal">
         <CardHeader className="border-b border-hacker-primary/30">
-          <CardTitle className="text-hacker-primary font-hack">Hacking Form</CardTitle>
+          <CardTitle className="text-hacker-primary font-hack">EXECUTION FORM</CardTitle>
         </CardHeader>
         <CardContent className="p-4 space-y-4">
           <div className="space-y-2">

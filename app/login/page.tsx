@@ -91,7 +91,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md border border-hacker-primary/30 bg-hacker-terminal">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center text-hacker-primary font-hack">
-            <span className="hacker-text-animation">HACKER DASHBOARD</span>
+            <span className="hacker-text-animation">LEGION</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
