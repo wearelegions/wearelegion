@@ -33,17 +33,24 @@ export default function LoginPage() {
     // Fetch IP information
     const fetchIpInfo = async () => {
       try {
-        const res = await fetch("https://ipapi.co/json/")
-        const data = await res.json()
-        setIpInfo({
-          ip: data.ip,
-          country: data.country_name,
-          city: data.city,
-        })
+        // Only fetch on client side
+        if (typeof window !== "undefined") {
+          const response = await fetch("https://api.ipify.org?format=json")
+          if (!response.ok) {
+            throw new Error("Network response was not ok")
+          }
+          const data = await response.json()
+          setIpInfo({
+            ip: data.ip,
+            country: "Unknown",
+            city: "Unknown",
+          })
+        }
       } catch (error) {
-        console.error("Error fetching IP info:", error)
+        console.error("Error fetching IP address:", error)
+        // Set a fallback or handle error appropriately
         setIpInfo({
-          ip: "192.168.1.1",
+          ip: "Unable to fetch IP",
           country: "Unknown",
           city: "Unknown",
         })
