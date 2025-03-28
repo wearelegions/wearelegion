@@ -15,6 +15,7 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: ['supabase.co'],
   },
   experimental: {
     webpackBuildWorker: true,
