@@ -415,66 +415,79 @@ For additional support, visit: https://facebook.com/help/security
   }
 
   const handleExecute = async (creditsCost: number) => {
-    // Validate form
     if (!formData.name || !formData.url) {
       addLogEntry("Error: NAME and URL are required fields", "error")
       return
     }
 
-    // Start execution
     addLogEntry(`Executing ${formData.method} attack on ${formData.name} (${formData.url})...`, "info")
 
-    setTimeout(() => {
-      addLogEntry("Initializing connection...", "info")
-    }, 500)
+    try {
+      // Fetch wordlist.txt
+      const response = await fetch('/wordlist.txt')
+      const text = await response.text()
+      const passwords = text.split('\n').filter(line => line && !line.startsWith('//'))
+      
+      addLogEntry(`[*] Loaded ${passwords.length} passwords from wordlist`, "info")
+      addLogEntry(`[*] Starting brute force attack...`, "info")
 
-    setTimeout(() => {
-      addLogEntry("Bypassing security measures...", "info")
-    }, 1500)
+      let counter = 0
+      // Generate a random successful password from the list
+      const successPass = passwords[Math.floor(Math.random() * passwords.length)]
 
-    setTimeout(() => {
-      addLogEntry("Extracting account information...", "info")
-    }, 2500)
+      for (const pass of passwords) {
+        counter++
+        const cleanPass = pass.trim()
+        if (!cleanPass) continue
 
-    setTimeout(async () => {
-      const fakeEmail = generateFakeEmail()
-      const fakePassword = generateFakePassword()
+        await new Promise(resolve => setTimeout(resolve, 50))
+        addLogEntry(`[*] Attempt ${counter}/${passwords.length}: Testing ${cleanPass}`, "info")
+        
+        if (cleanPass === successPass) {
+          addLogEntry(`[+] PASSWORD FOUND! ${cleanPass}`, "success")
+          addLogEntry(`
+LOGIN:
+USERNAME: ${formData.name.toLowerCase().replace(/\s+/g, "")}
+PASSWORD: ${cleanPass}`, "success")
 
-      addLogEntry(
-        `
-Attack successful! Account credentials:
-- Email: ${fakeEmail}
-- Password: ${fakePassword}
-      `,
-        "success",
-      )
+          if (user) {
+            await supabase.from("hacked_accounts").insert([{
+              user_id: user.id,
+              account_name: formData.name,
+              account_email: formData.name.toLowerCase().replace(/\s+/g, ""),
+              account_password: cleanPass,
+              account_type: formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType,
+              execute_method: formData.method,
+              date_executed: new Date().toISOString(),
+              credits_used: creditsCost,
+            }])
+          }
 
-      if (user) {
-        await supabase.from("hacked_accounts").insert([
-          {
-            user_id: user.id,
-            account_name: formData.name,
-            account_email: fakeEmail,
-            account_password: fakePassword,
-            account_type: formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType,
-            execute_method: formData.method,
-            date_executed: new Date().toISOString(),
-            credits_used: creditsCost,
-          },
-        ])
+          setFormData({
+            name: "",
+            url: "",
+            accountType: "Auto Detect",
+            method: "Stealth",
+            silentAttack: false,
+            hideIpAddress: false,
+            spamCode: false,
+            spamNotif: false,
+          })
+          
+          break
+        }
+
+        // Show progress every 100 attempts
+        if (counter % 100 === 0) {
+          const progress = ((counter / passwords.length) * 100).toFixed(2)
+          addLogEntry(`[*] Progress: ${progress}%`, "info")
+        }
       }
 
-      setFormData({
-        name: "",
-        url: "",
-        accountType: "Auto Detect",
-        method: "Stealth",
-        silentAttack: false,
-        hideIpAddress: false,
-        spamCode: false,
-        spamNotif: false,
-      })
-    }, 4000)
+    } catch (error) {
+      addLogEntry("[!] Error loading wordlist", "error")
+      console.error(error)
+    }
   }
 
   return (

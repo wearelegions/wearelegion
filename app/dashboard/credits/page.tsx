@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Wallet } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -23,6 +24,7 @@ export default function CreditsPage() {
   const [packages, setPackages] = useState<Package[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [alertModal, setAlertModal] = useState({ isOpen: false, title: "", message: "" })
+  const [showFundsInfo, setShowFundsInfo] = useState(false)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -150,6 +152,12 @@ export default function CreditsPage() {
         title={alertModal.title}
         message={alertModal.message}
       />
+      <AlertModal
+        isOpen={showFundsInfo}
+        onClose={() => setShowFundsInfo(false)}
+        title="Add Funds"
+        message="To add funds for purchasing credits, kindly contact your hacker."
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="border border-hacker-primary/30 bg-hacker-terminal">
           <CardHeader className="border-b border-hacker-primary/30">
@@ -163,7 +171,17 @@ export default function CreditsPage() {
 
         <Card className="border border-hacker-primary/30 bg-hacker-terminal">
           <CardHeader className="border-b border-hacker-primary/30">
-            <CardTitle className="text-hacker-primary font-hack">Funds Balance</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-hacker-primary font-hack">Funds Balance</CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowFundsInfo(true)}
+                className="text-hacker-primary hover:text-hacker-primary/80"
+              >
+                <Wallet className="h-5 w-5" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="p-6">
             <div className="text-4xl font-bold text-hacker-primary font-hack">
