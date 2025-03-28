@@ -72,14 +72,13 @@ export default function LoginPage() {
       return
     }
 
-    // Format the email for Supabase (since Supabase requires email format)
     const email = `${userIndex}@gmail.com`
-
-    // Send magic link
+    
+    // Add redirectTo parameter with your domain
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}/dashboard`, // This will use the current domain
       },
     })
 
