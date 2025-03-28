@@ -9,6 +9,8 @@ import { LayoutDashboard, Database, CreditCard, Settings, Menu, Bell, User, LogO
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { NotificationsContent } from "@/components/notifications-menu"
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu"
 
 export default function DashboardLayout({
   children,
@@ -136,21 +138,28 @@ export default function DashboardLayout({
         <header className="bg-hacker-terminal border-b border-hacker-primary/30 p-4">
           <div className="flex justify-between items-center">
             <div className="max-w-2xl overflow-hidden">
-              <div className="bg-hacker-primary/10 border border-hacker-primary/30 rounded-md p-2 animate-pulse">
-                <p className="text-hacker-primary font-hack text-sm truncate">
-                  GREAT NEWS! THE STARTER PACK IS AFFORDABLE AS ₱899 WITH 200 CREDITS. IT'LL REVERT BACK TO IT'S
-                  ORIGINAL OF ₱2899 ON APRIL 1, 2025. GRAB IT NOW!
-                </p>
-              </div>
+              {/* Remove the promo banner since it's now in notifications */}
             </div>
             <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-hacker-primary hover:text-hacker-accent hover:bg-transparent"
-              >
-                <Bell className="h-5 w-5" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-hacker-primary hover:text-hacker-accent hover:bg-transparent relative"
+                  >
+                    <Bell className="h-5 w-5" />
+                    <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  className="w-80 bg-hacker-terminal border-hacker-primary/30 p-0"
+                  align="end"
+                  sideOffset={8}
+                >
+                  <NotificationsContent />
+                </DropdownMenuContent>
+              </DropdownMenu>
               <div className="flex items-center">
                 <Button
                   variant="ghost"
@@ -171,9 +180,7 @@ export default function DashboardLayout({
         <main className="flex-1 p-6 overflow-auto">{children}</main>
 
         {/* Footer */}
-        <footer className="bg-hacker-terminal border-t border-hacker-primary/30 p-4 text-center">
-          <p className="text-hacker-primary font-hack text-sm hacker-text-animation">
-            WE ARE LEGION. WE DO NOT FORGIVE. WE DO NOT FORGET. EXPECT US.
+        <footer className="bg-hacker-terminal border-t border-hacker-primary/30 p-4 text-center">          <p className="text-hacker-primary font-hack text-sm hacker-text-animation">            WE ARE LEGION. WE DO NOT FORGIVE. WE DO NOT FORGET. EXPECT US.
           </p>
         </footer>
       </div>

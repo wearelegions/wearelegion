@@ -535,7 +535,7 @@ Attack successful! Account credentials:
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2"></div>
             <Label htmlFor="url" className="text-hacker-primary font-hack">
               URL
             </Label>
@@ -545,7 +545,6 @@ Attack successful! Account credentials:
               onChange={(e) => handleFormChange("url", e.target.value)}
               className="bg-black border-hacker-primary/50 text-hacker-primary font-hack"
             />
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="accountType" className="text-hacker-primary font-hack">
