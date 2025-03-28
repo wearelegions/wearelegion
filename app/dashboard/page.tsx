@@ -13,6 +13,36 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/lib/supabase"
 
+const SUPPORTED_PLATFORMS: { [key: string]: string } = {
+  "facebook.com": "Facebook",
+  "instagram.com": "Instagram",
+  "twitter.com": "Twitter",
+  "x.com": "Twitter",
+  "gmail.com": "Gmail",
+  "mail.google.com": "Gmail",
+  "youtube.com": "YouTube",
+  "viber.com": "Viber",
+  "telegram.org": "Telegram",
+  "t.me": "Telegram",
+  "linkedin.com": "LinkedIn",
+  "bybit.com": "Bybit",
+}
+
+const METHOD_COSTS: { [key: string]: number } = {
+  Stealth: 150,
+  "Brute-force": 190,
+  Grab: 200,
+  Steal: 560,
+  Retrieval: 150,
+}
+
+const ADDITIONAL_COSTS: { [key: string]: number } = {
+  silentAttack: 100,
+  hideIpAddress: 80,
+  spamCode: 100,
+  spamNotif: 100,
+}
+
 type LogEntry = {
   id: string
   timestamp: string
@@ -171,20 +201,57 @@ Clues extracted from ${url}:
 
   const detectPlatform = (url: string): string => {
     url = url.toLowerCase()
-    if (url.includes("facebook.com")) return "Facebook"
-    if (url.includes("instagram.com")) return "Instagram"
-    if (url.includes("twitter.com") || url.includes("x.com")) return "Twitter"
-    if (url.includes("gmail.com") || url.includes("mail.google.com")) return "Gmail"
-    if (url.includes("youtube.com")) return "YouTube"
-    if (url.includes("viber.com")) return "Viber"
-    if (url.includes("telegram.org") || url.includes("t.me")) return "Telegram"
-    if (url.includes("linkedin.com")) return "LinkedIn"
-    if (url.includes("bybit.com")) return "Bybit"
+    for (const platform in SUPPORTED_PLATFORMS) {
+      if (url.includes(platform)) return SUPPORTED_PLATFORMS[platform]
+    }
     return "Unknown"
   }
 
+  const validateUrl = (url: string): boolean => {
+    try {
+      const parsedUrl = new URL(url)
+      const domain = parsedUrl.hostname.toLowerCase()
+      return Object.keys(SUPPORTED_PLATFORMS).some((platform) => domain.includes(platform))
+    } catch {
+      return false
+    }
+  }
+
   const handleFormChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    if (field === "url") {
+      if (value && !validateUrl(value)) {
+        addLogEntry("Warning: URL not supported or invalid", "error")
+        setFormData((prev) => ({
+          ...prev,
+          [field]: value,
+          accountType: "Auto Detect",
+        }))
+        return
+      }
+
+      const platform = detectPlatform(value)
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+        accountType: platform !== "Unknown" ? platform : "Auto Detect",
+      }))
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }))
+    }
+  }
+
+  const calculateTotalCost = (method: string, options: any): number => {
+    let total = METHOD_COSTS[method] || 0
+    Object.entries(options).forEach(([key, enabled]) => {
+      if (enabled && ADDITIONAL_COSTS[key]) {
+        total += ADDITIONAL_COSTS[key]
+      }
+    })
+    return total
+  }
+
+  const canAffordMethod = (method: string, options: any): boolean => {
+    return credits >= calculateTotalCost(method, options)
   }
 
   const handleExecute = async () => {
@@ -195,33 +262,12 @@ Clues extracted from ${url}:
     }
 
     // Calculate credits cost
-    let creditsCost = 0
-    switch (formData.method) {
-      case "Stealth":
-        creditsCost = 150
-        break
-      case "Brute-force":
-        creditsCost = 190
-        break
-      case "Grab":
-        creditsCost = 200
-        break
-      case "Steal":
-        creditsCost = 560
-        break
-      case "Retrieval":
-        creditsCost = 150
-        break
-      default:
-        addLogEntry(`Error: Unrecognized method "${formData.method}"`, "error")
-        return
-    }
-
-    // Add costs for security options
-    if (formData.silentAttack) creditsCost += 100
-    if (formData.hideIpAddress) creditsCost += 80
-    if (formData.spamCode) creditsCost += 100
-    if (formData.spamNotif) creditsCost += 100
+    const creditsCost = calculateTotalCost(formData.method, {
+      silentAttack: formData.silentAttack,
+      hideIpAddress: formData.hideIpAddress,
+      spamCode: formData.spamCode,
+      spamNotif: formData.spamNotif,
+    })
 
     // Check if user has enough credits
     if (credits < creditsCost) {
@@ -413,80 +459,81 @@ Attack successful! Account credentials:
             <Label htmlFor="method" className="text-hacker-primary font-hack">
               METHOD
             </Label>
-            <Select value={formData.method} onValueChange={(value) => handleFormChange("method", value)}>
+            <Select
+              value={formData.method}
+              onValueChange={(value) => handleFormChange("method", value)}
+              disabled={credits === 0}
+            >
               <SelectTrigger className="bg-black border-hacker-primary/50 text-hacker-primary font-hack">
                 <SelectValue placeholder="Select method" />
               </SelectTrigger>
               <SelectContent className="bg-hacker-terminal border-hacker-primary/50">
-                <SelectItem value="Stealth" className="text-hacker-primary font-hack">
-                  Stealth
-                </SelectItem>
-                <SelectItem value="Brute-force" className="text-hacker-primary font-hack">
-                  Brute-force
-                </SelectItem>
-                <SelectItem value="Grab" className="text-hacker-primary font-hack">
-                  Grab
-                </SelectItem>
-                <SelectItem value="Steal" className="text-hacker-primary font-hack">
-                  Steal
-                </SelectItem>
-                <SelectItem value="Retrieval" className="text-hacker-primary font-hack">
-                  Retrieval
-                </SelectItem>
+                {Object.entries(METHOD_COSTS).map(([method, cost]) => (
+                  <SelectItem
+                    key={method}
+                    value={method}
+                    className="text-hacker-primary font-hack"
+                    disabled={!canAffordMethod(method, {
+                      silentAttack: formData.silentAttack,
+                      hideIpAddress: formData.hideIpAddress,
+                      spamCode: formData.spamCode,
+                      spamNotif: formData.spamNotif,
+                    })}
+                  >
+                    {method} ({cost} credits)
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-hacker-primary font-hack">SECURITY</Label>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="silentAttack"
-                  checked={formData.silentAttack}
-                  onCheckedChange={(checked) => handleFormChange("silentAttack", checked)}
-                  className="border-hacker-primary data-[state=checked]:bg-hacker-primary data-[state=checked]:text-black"
-                />
-                <Label htmlFor="silentAttack" className="text-hacker-primary font-hack text-xs">
-                  SILENT ATTACK
-                </Label>
-              </div>
+          <div className="space-y-4 mt-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="silentAttack"
+                checked={formData.silentAttack}
+                disabled={credits < ADDITIONAL_COSTS.silentAttack || credits === 0}
+                onCheckedChange={(checked) => handleFormChange("silentAttack", checked)}
+              />
+              <Label htmlFor="silentAttack" className="text-hacker-primary font-hack">
+                Silent Attack ({ADDITIONAL_COSTS.silentAttack} credits)
+              </Label>
+            </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="hideIpAddress"
-                  checked={formData.hideIpAddress}
-                  onCheckedChange={(checked) => handleFormChange("hideIpAddress", checked)}
-                  className="border-hacker-primary data-[state=checked]:bg-hacker-primary data-[state=checked]:text-black"
-                />
-                <Label htmlFor="hideIpAddress" className="text-hacker-primary font-hack text-xs">
-                  HIDE IP ADDRESS
-                </Label>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="hideIpAddress"
+                checked={formData.hideIpAddress}
+                disabled={credits < ADDITIONAL_COSTS.hideIpAddress || credits === 0}
+                onCheckedChange={(checked) => handleFormChange("hideIpAddress", checked)}
+              />
+              <Label htmlFor="hideIpAddress" className="text-hacker-primary font-hack">
+                Hide IP Address ({ADDITIONAL_COSTS.hideIpAddress} credits)
+              </Label>
+            </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="spamCode"
-                  checked={formData.spamCode}
-                  onCheckedChange={(checked) => handleFormChange("spamCode", checked)}
-                  className="border-hacker-primary data-[state=checked]:bg-hacker-primary data-[state=checked]:text-black"
-                />
-                <Label htmlFor="spamCode" className="text-hacker-primary font-hack text-xs">
-                  SPAM CODE
-                </Label>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="spamCode"
+                checked={formData.spamCode}
+                disabled={credits < ADDITIONAL_COSTS.spamCode || credits === 0}
+                onCheckedChange={(checked) => handleFormChange("spamCode", checked)}
+              />
+              <Label htmlFor="spamCode" className="text-hacker-primary font-hack">
+                Spam Code ({ADDITIONAL_COSTS.spamCode} credits)
+              </Label>
+            </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="spamNotif"
-                  checked={formData.spamNotif}
-                  onCheckedChange={(checked) => handleFormChange("spamNotif", checked)}
-                  className="border-hacker-primary data-[state=checked]:bg-hacker-primary data-[state=checked]:text-black"
-                />
-                <Label htmlFor="spamNotif" className="text-hacker-primary font-hack text-xs">
-                  SPAM NOTIF
-                </Label>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="spamNotif"
+                checked={formData.spamNotif}
+                disabled={credits < ADDITIONAL_COSTS.spamNotif || credits === 0}
+                onCheckedChange={(checked) => handleFormChange("spamNotif", checked)}
+              />
+              <Label htmlFor="spamNotif" className="text-hacker-primary font-hack">
+                Spam Notif ({ADDITIONAL_COSTS.spamNotif} credits)
+              </Label>
             </div>
           </div>
 

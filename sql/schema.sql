@@ -110,7 +110,7 @@ create or replace function public.handle_new_user()
 returns trigger as $$
 begin
   insert into public.users (id, user_index, credits, funds)
-  values (new.id, split_part(new.email, '@', 1), 100, 0);
+  values (new.id, split_part(new.email, '@', 1), 0, 0);
   return new;
 end;
 $$ language plpgsql security definer;
