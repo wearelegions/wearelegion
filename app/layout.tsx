@@ -8,9 +8,8 @@ import { AuthProvider } from "@/contexts/auth-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Hacker Dashboard",
-  description: "A modern hacking dashboard with terminal aesthetics",
-  generator: 'v0.dev'
+  title: "TOR LEGION",
+  description: "A modern cloud-computing base hacking tool for TOR"
 }
 
 export default function RootLayout({

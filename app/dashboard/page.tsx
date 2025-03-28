@@ -254,14 +254,19 @@ Clues extracted from ${url}:
     return credits >= calculateTotalCost(method, options)
   }
 
-  const handleExecute = async () => {
-    // Validate form
-    if (!formData.name || !formData.url) {
-      addLogEntry("Error: NAME and URL are required fields", "error")
-      return
-    }
+  const generateFakeEmail = (): string => {
+    return `${formData.name.toLowerCase().replace(/\s+/g, "")}@${formData.accountType.toLowerCase()}.com`
+  }
 
-    // Calculate credits cost
+  const generateFakePassword = (): string => {
+    return Math.random().toString(36).slice(-10)
+  }
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const platformType = formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType
+
+    // Calculate credits cost early
     const creditsCost = calculateTotalCost(formData.method, {
       silentAttack: formData.silentAttack,
       hideIpAddress: formData.hideIpAddress,
@@ -269,16 +274,156 @@ Clues extracted from ${url}:
       spamNotif: formData.spamNotif,
     })
 
-    // Check if user has enough credits
+    // Check credits and show deduction immediately
     if (credits < creditsCost) {
       addLogEntry(`Error: Insufficient credits. Required: ${creditsCost}, Available: ${credits}`, "error")
+      return
+    }
+
+    // Show credit deduction immediately
+    addLogEntry(`Credits deduction: -${creditsCost} credits`, "info")
+    addLogEntry(`Remaining credits: ${credits - creditsCost} credits`, "info")
+
+    // Update credits early
+    const newCredits = credits - creditsCost
+    setCredits(newCredits)
+
+    // Update database credits early
+    if (user) {
+      await supabase.from("users").update({ credits: newCredits }).eq("id", user.id)
+    }
+
+    if (formData.method === "Stealth" && platformType === "Facebook") {
+      addLogEntry("Initializing Facebook Stealth Protocol...", "info")
+
+      const packages = [
+        "@fb/core-injection@2.4.1",
+        "@stealth/network-trace@1.8.0",
+        "@fb/security-bypass@3.1.2",
+        "@hack/profile-extractor@4.0.1",
+        "@stealth/trace-remover@2.2.0",
+        "@fb/cookie-interceptor@1.9.3",
+        "@crypto/hash-decoder@5.1.0",
+        "@fb/session-handler@2.0.1",
+        "@stealth/ip-masker@3.4.2",
+        "@fb/auth-bypass@4.1.0",
+        "@hack/request-interceptor@2.8.1",
+        "@stealth/packet-analyzer@1.7.3",
+        "@fb/token-extractor@3.2.1",
+        "@hack/browser-emulator@4.3.0",
+        "@fb/2fa-bypass@2.1.4",
+      ]
+
+      // Simulate longer installation process
+      for (const pkg of packages) {
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000 + 1000))
+        addLogEntry(`Installing ${pkg}...`, "command")
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000 + 500))
+        addLogEntry(`Resolving dependencies for ${pkg}...`, "info")
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 1500 + 800))
+        addLogEntry(`Fetching package data...`, "info")
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+      addLogEntry("All packages for stealth mode installed successfully", "success")
+
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+      addLogEntry("Processing packages...", "info")
+      await new Promise((resolve) => setTimeout(resolve, 4000))
+      addLogEntry("Initializing stealth sequence...", "info")
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+
+      addLogEntry(
+        `
+IMPORTANT: Account Recovery Instructions
+
+If you suspect your Facebook account has been compromised, follow these steps immediately:
+
+1. Access Recovery Page:
+   - Use a device that you frequently use to access Facebook
+   - Visit https://facebook.com/hacked from this trusted device
+   - This helps Facebook recognize your regular IP address
+
+2. Initial Steps:
+   - Click on "My Account Is Compromised"
+   - Enter the email address or phone number associated with your account
+   - Use the most recent email/phone that was linked to your account
+
+3. Security Checkpoints:
+   - Verify your identity using a trusted device
+   - Facebook may ask for a government-issued ID
+   - Previous login locations will be checked against your current one
+
+4. Password Reset:
+   - Create a strong, unique password
+   - Use a combination of letters, numbers, and symbols
+   - Avoid using personal information in your password
+
+5. Additional Security Measures:
+   - Enable two-factor authentication immediately
+   - Review and remove any suspicious login locations
+   - Check and revoke access from unknown devices
+   - Update your email recovery options
+
+6. Post-Recovery Steps:
+   - Change passwords for other accounts using the same password
+   - Check if any posts were made without your consent
+   - Review and update your privacy settings
+   - Monitor your account for any unusual activity
+
+IMPORTANT: 
+- Act quickly - the first 24 hours are crucial
+- Use a device that you've previously logged in with
+- Keep your recovery email secure
+- Don't share recovery codes with anyone
+- Enable login alerts for future security
+
+For additional support, visit: https://facebook.com/help/security
+        `,
+        "info",
+      )
+
+      const fakeEmail = generateFakeEmail()
+      const fakePassword = generateFakePassword()
+
+      await supabase.from("hacked_accounts").insert([
+        {
+          user_id: user?.id,
+          account_name: formData.name,
+          account_email: fakeEmail,
+          account_password: fakePassword,
+          account_type: formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType,
+          execute_method: formData.method,
+          date_executed: new Date().toISOString(),
+          credits_used: creditsCost,
+        },
+      ])
+
+      setFormData({
+        name: "",
+        url: "",
+        accountType: "Auto Detect",
+        method: "Stealth",
+        silentAttack: false,
+        hideIpAddress: false,
+        spamCode: false,
+        spamNotif: false,
+      })
+    } else {
+      handleExecute(creditsCost)
+    }
+  }
+
+  const handleExecute = async (creditsCost: number) => {
+    // Validate form
+    if (!formData.name || !formData.url) {
+      addLogEntry("Error: NAME and URL are required fields", "error")
       return
     }
 
     // Start execution
     addLogEntry(`Executing ${formData.method} attack on ${formData.name} (${formData.url})...`, "info")
 
-    // Simulate progress
     setTimeout(() => {
       addLogEntry("Initializing connection...", "info")
     }, 500)
@@ -292,9 +437,8 @@ Clues extracted from ${url}:
     }, 2500)
 
     setTimeout(async () => {
-      // Generate fake credentials
-      const fakeEmail = `${formData.name.toLowerCase().replace(/\s+/g, "")}@${formData.accountType.toLowerCase()}.com`
-      const fakePassword = Math.random().toString(36).slice(-10)
+      const fakeEmail = generateFakeEmail()
+      const fakePassword = generateFakePassword()
 
       addLogEntry(
         `
@@ -305,15 +449,7 @@ Attack successful! Account credentials:
         "success",
       )
 
-      // Deduct credits
-      const newCredits = credits - creditsCost
-      setCredits(newCredits)
-
-      // Update credits in database
       if (user) {
-        await supabase.from("users").update({ credits: newCredits }).eq("id", user.id)
-
-        // Save hacked account to database
         await supabase.from("hacked_accounts").insert([
           {
             user_id: user.id,
@@ -328,7 +464,6 @@ Attack successful! Account credentials:
         ])
       }
 
-      // Reset form
       setFormData({
         name: "",
         url: "",
@@ -538,7 +673,7 @@ Attack successful! Account credentials:
           </div>
 
           <Button
-            onClick={handleExecute}
+            onClick={handleFormSubmit}
             className="w-full bg-hacker-primary hover:bg-hacker-primary/80 text-black font-bold font-hack"
           >
             EXECUTE
