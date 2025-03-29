@@ -163,65 +163,65 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-hacker-background p-4">
-      <Card className="w-full max-w-md border border-hacker-primary/30 bg-hacker-terminal">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-hacker-primary font-hack">
+    <div className="flex items-center justify-center min-h-screen bg-hacker-background p-2 sm:p-4">
+      <Card className="w-full max-w-[95%] sm:max-w-md border border-hacker-primary/30 bg-hacker-terminal">
+        <CardHeader className="space-y-1 p-4 sm:p-6">
+          <CardTitle className="text-xl sm:text-2xl font-bold text-center text-hacker-primary font-hack">
             <span className="hacker-text-animation">LEGION</span>
           </CardTitle>
-            <div className="text-xs text-hacker-primary/70 text-center">
+          <div className="text-[10px] sm:text-xs text-hacker-primary/70 text-center">
             WE ARE ANONYMOUS. WE ARE LEGION. WE DO NOT FORGIVE. 
             WE DO NOT FORGET. EXPECT US.
-            </div>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           {error && (
-            <Alert variant="destructive" className="mb-4 bg-destructive/20 border-destructive">
-              <AlertCircle className="h-4 w-4" />
+            <Alert variant="destructive" className="mb-3 sm:mb-4 bg-destructive/20 border-destructive text-sm">
+              <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           {success && (
-            <Alert className="mb-4 bg-hacker-primary/20 border-hacker-primary">
-              <AlertDescription className="text-hacker-primary">{success}</AlertDescription>
+            <Alert className="mb-3 sm:mb-4 bg-hacker-primary/20 border-hacker-primary">
+              <AlertDescription className="text-hacker-primary text-sm">{success}</AlertDescription>
             </Alert>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="userIndex" className="text-sm font-medium text-hacker-primary font-hack">
+          <form onSubmit={handleLogin} className="space-y-3 sm:space-y-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <label htmlFor="userIndex" className="text-xs sm:text-sm font-medium text-hacker-primary font-hack">
                 USER INDEX
               </label>
               <Input
                 id="userIndex"
                 value={userIndex}
                 onChange={(e) => setUserIndex(e.target.value)}
-                className="bg-black border-hacker-primary/50 text-hacker-primary font-hack"
+                className="bg-black border-hacker-primary/50 text-hacker-primary font-hack text-sm sm:text-base h-8 sm:h-10"
               />
             </div>
             <Button
               type="submit"
-              className="w-full bg-hacker-primary hover:bg-hacker-primary/80 text-black font-bold font-hack"
+              className="w-full bg-hacker-primary hover:bg-hacker-primary/80 text-black font-bold font-hack text-sm sm:text-base h-8 sm:h-10"
               disabled={isLoading}
             >
               {isLoading ? "SENDING ACCESS LINK..." : "ACCESS SYSTEM"}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col items-start">
-          <div className="w-full text-xs text-hacker-primary/70 font-hack space-y-1">
+        <CardFooter className="flex flex-col items-start p-4 sm:p-6">
+          <div className="w-full text-[10px] sm:text-xs text-hacker-primary/70 font-hack space-y-1">
             <div className="flex justify-between w-full">
               <span>IP ADDRESS:</span>
-              <span>{ipInfo?.ip || "Loading..."}</span>
+              <span className="break-all ml-2">{ipInfo?.ip || "Loading..."}</span>
             </div>
             <div className="flex justify-between w-full">
               <span>LOCATION:</span>
-              <span>{ipInfo ? `${ipInfo.city}, ${ipInfo.country}` : "Loading..."}</span>
+              <span className="break-all ml-2">{ipInfo ? `${ipInfo.city}, ${ipInfo.country}` : "Loading..."}</span>
             </div>
             <div className="flex justify-between w-full">
               <span>STATUS:</span>
-              <span className="text-hacker-accent">SECURE CONNECTION</span>
+              <span className="text-hacker-accent break-all ml-2">SECURE CONNECTION</span>
             </div>
           </div>
         </CardFooter>

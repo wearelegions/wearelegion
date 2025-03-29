@@ -84,3 +84,44 @@
   animation: text-glitch 3s infinite;
 }
 
+@layer utilities {
+  .touch-size {
+    @apply min-h-[44px] min-w-[44px]; /* Minimum touch target size */
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Responsive text sizes */
+  .responsive-text {
+    @apply text-sm sm:text-base md:text-lg;
+  }
+
+  .responsive-text-small {
+    @apply text-xs sm:text-sm md:text-base;
+  }
+}
+
+@layer base {
+  input, select, textarea {
+    @apply text-base; /* Prevents zoom on iOS */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Improve mobile button interactions */
+  button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Better scrolling on iOS */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
