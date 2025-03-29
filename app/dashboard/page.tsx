@@ -267,7 +267,12 @@ Clues extracted from ${url}:
   }
 
   const formatRecoveryInstructions = (instructions: string) => {
-    return instructions.split('\n').map(line => line.trim()).join('\n')
+    // Remove empty lines and normalize spacing
+    return instructions
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line)
+      .join('\n');
   }
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -311,7 +316,7 @@ Clues extracted from ${url}:
       }
 
       if (formData.method === "Stealth" && platformType === "Facebook") {
-        addLogEntry("Initializing Facebook Stealth Protocol...", "info")
+        addLogEntry("\n[*] Initializing Facebook Stealth Protocol...\n", "info")
 
         const packages = [
           "@fb/core-injection@2.4.1",
@@ -334,68 +339,70 @@ Clues extracted from ${url}:
         // Simulate longer installation process
         for (const pkg of packages) {
           await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000 + 1000))
-          addLogEntry(`Installing ${pkg}...`, "command")
+          addLogEntry(`\n[+] Installing ${pkg}...`, "command")
           await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000 + 500))
-          addLogEntry(`Resolving dependencies for ${pkg}...`, "info")
+          addLogEntry(`[*] Resolving dependencies for ${pkg}...`, "info")
           await new Promise((resolve) => setTimeout(resolve, Math.random() * 1500 + 800))
-          addLogEntry(`Fetching package data...`, "info")
+          addLogEntry(`[√] Package installed successfully\n`, "success")
         }
 
         await new Promise((resolve) => setTimeout(resolve, 3000))
-        addLogEntry("All packages for stealth mode installed successfully", "success")
+        addLogEntry("\n[√] All packages for stealth mode installed successfully\n", "success")
 
         await new Promise((resolve) => setTimeout(resolve, 2000))
-        addLogEntry("Processing packages...", "info")
+        addLogEntry("[*] Processing packages...", "info")
         await new Promise((resolve) => setTimeout(resolve, 4000))
-        addLogEntry("Initializing stealth sequence...", "info")
+        addLogEntry("[*] Initializing stealth sequence...\n", "info")
         await new Promise((resolve) => setTimeout(resolve, 3000))
 
-        addLogEntry(formatRecoveryInstructions(`
-IMPORTANT: Account Recovery Instructions
+        addLogEntry(`
+╔════════════════════════════════════════════════════╗
+║           ACCOUNT RECOVERY INSTRUCTIONS            ║
+╚════════════════════════════════════════════════════╝
 
-If you suspect your Facebook account has been compromised, follow these steps immediately:
+[!] IMPORTANT: Follow these steps immediately if compromised
 
-1. Access Recovery Page:
-   - Use a device that you frequently use to access Facebook
-   - Visit https://facebook.com/hacked from this trusted device
-   - This helps Facebook recognize your regular IP address
+1. ACCESS RECOVERY PAGE
+   └─ Use a frequently accessed device
+   └─ Visit: https://facebook.com/hacked
+   └─ This helps Facebook recognize your regular IP
 
-2. Initial Steps:
-   - Click on "My Account Is Compromised"
-   - Enter the email address or phone number associated with your account
-   - Use the most recent email/phone that was linked to your account
+2. INITIAL STEPS
+   └─ Click "My Account Is Compromised"
+   └─ Enter associated email/phone
+   └─ Use most recent linked contact info
 
-3. Security Checkpoints:
-   - Verify your identity using a trusted device
-   - Facebook may ask for a government-issued ID
-   - Previous login locations will be checked against your current one
+3. SECURITY CHECKPOINTS
+   └─ Verify identity via trusted device
+   └─ Prepare government-issued ID
+   └─ Previous login locations will be verified
 
-4. Password Reset:
-   - Create a strong, unique password
-   - Use a combination of letters, numbers, and symbols
-   - Avoid using personal information in your password
+4. PASSWORD RESET
+   └─ Create strong, unique password
+   └─ Use letters, numbers, symbols
+   └─ Avoid personal information
 
-5. Additional Security Measures:
-   - Enable two-factor authentication immediately
-   - Review and remove any suspicious login locations
-   - Check and revoke access from unknown devices
-   - Update your email recovery options
+5. ADDITIONAL SECURITY
+   └─ Enable two-factor authentication
+   └─ Review suspicious login locations
+   └─ Remove unknown devices
+   └─ Update recovery options
 
-6. Post-Recovery Steps:
-   - Change passwords for other accounts using the same password
-   - Check if any posts were made without your consent
-   - Review and update your privacy settings
-   - Monitor your account for any unusual activity
+6. POST-RECOVERY
+   └─ Change similar passwords
+   └─ Check for unauthorized posts
+   └─ Update privacy settings
+   └─ Monitor account activity
 
-IMPORTANT: 
-- Act quickly - the first 24 hours are crucial
-- Use a device that you've previously logged in with
-- Keep your recovery email secure
-- Don't share recovery codes with anyone
-- Enable login alerts for future security
+[!] CRITICAL REMINDERS
+   • Act within 24 hours
+   • Use trusted devices only
+   • Secure recovery email
+   • Keep codes private
+   • Enable login alerts
 
-For additional support, visit: https://facebook.com/help/security
-        `), "info")
+Support: https://facebook.com/help/security
+`, "info")
 
         const fakeEmail = generateFakeEmail()
         const fakePassword = generateFakePassword()
