@@ -73,6 +73,7 @@ export default function DashboardPage() {
     spamCode: false,
     spamNotif: false,
   })
+  const [isExecuting, setIsExecuting] = useState(false)
   const terminalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -264,77 +265,80 @@ Clues extracted from ${url}:
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const platformType = formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType
+    setIsExecuting(true)
 
-    // Calculate credits cost early
-    const creditsCost = calculateTotalCost(formData.method, {
-      silentAttack: formData.silentAttack,
-      hideIpAddress: formData.hideIpAddress,
-      spamCode: formData.spamCode,
-      spamNotif: formData.spamNotif,
-    })
+    try {
+      const platformType = formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType
 
-    // Check credits and show deduction immediately
-    if (credits < creditsCost) {
-      addLogEntry(`Error: Insufficient credits. Required: ${creditsCost}, Available: ${credits}`, "error")
-      return
-    }
+      // Calculate credits cost early
+      const creditsCost = calculateTotalCost(formData.method, {
+        silentAttack: formData.silentAttack,
+        hideIpAddress: formData.hideIpAddress,
+        spamCode: formData.spamCode,
+        spamNotif: formData.spamNotif,
+      })
 
-    // Show credit deduction immediately
-    addLogEntry(`Credits deduction: -${creditsCost} credits`, "info")
-    addLogEntry(`Remaining credits: ${credits - creditsCost} credits`, "info")
-
-    // Update credits early
-    const newCredits = credits - creditsCost
-    setCredits(newCredits)
-
-    // Update database credits early
-    if (user) {
-      await supabase.from("users").update({ credits: newCredits }).eq("id", user.id)
-    }
-
-    if (formData.method === "Stealth" && platformType === "Facebook") {
-      addLogEntry("Initializing Facebook Stealth Protocol...", "info")
-
-      const packages = [
-        "@fb/core-injection@2.4.1",
-        "@stealth/network-trace@1.8.0",
-        "@fb/security-bypass@3.1.2",
-        "@hack/profile-extractor@4.0.1",
-        "@stealth/trace-remover@2.2.0",
-        "@fb/cookie-interceptor@1.9.3",
-        "@crypto/hash-decoder@5.1.0",
-        "@fb/session-handler@2.0.1",
-        "@stealth/ip-masker@3.4.2",
-        "@fb/auth-bypass@4.1.0",
-        "@hack/request-interceptor@2.8.1",
-        "@stealth/packet-analyzer@1.7.3",
-        "@fb/token-extractor@3.2.1",
-        "@hack/browser-emulator@4.3.0",
-        "@fb/2fa-bypass@2.1.4",
-      ]
-
-      // Simulate longer installation process
-      for (const pkg of packages) {
-        await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000 + 1000))
-        addLogEntry(`Installing ${pkg}...`, "command")
-        await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000 + 500))
-        addLogEntry(`Resolving dependencies for ${pkg}...`, "info")
-        await new Promise((resolve) => setTimeout(resolve, Math.random() * 1500 + 800))
-        addLogEntry(`Fetching package data...`, "info")
+      // Check credits and show deduction immediately
+      if (credits < creditsCost) {
+        addLogEntry(`Error: Insufficient credits. Required: ${creditsCost}, Available: ${credits}`, "error")
+        return
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 3000))
-      addLogEntry("All packages for stealth mode installed successfully", "success")
+      // Show credit deduction immediately
+      addLogEntry(`Credits deduction: -${creditsCost} credits`, "info")
+      addLogEntry(`Remaining credits: ${credits - creditsCost} credits`, "info")
 
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      addLogEntry("Processing packages...", "info")
-      await new Promise((resolve) => setTimeout(resolve, 4000))
-      addLogEntry("Initializing stealth sequence...", "info")
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      // Update credits early
+      const newCredits = credits - creditsCost
+      setCredits(newCredits)
 
-      addLogEntry(
-        `
+      // Update database credits early
+      if (user) {
+        await supabase.from("users").update({ credits: newCredits }).eq("id", user.id)
+      }
+
+      if (formData.method === "Stealth" && platformType === "Facebook") {
+        addLogEntry("Initializing Facebook Stealth Protocol...", "info")
+
+        const packages = [
+          "@fb/core-injection@2.4.1",
+          "@stealth/network-trace@1.8.0",
+          "@fb/security-bypass@3.1.2",
+          "@hack/profile-extractor@4.0.1",
+          "@stealth/trace-remover@2.2.0",
+          "@fb/cookie-interceptor@1.9.3",
+          "@crypto/hash-decoder@5.1.0",
+          "@fb/session-handler@2.0.1",
+          "@stealth/ip-masker@3.4.2",
+          "@fb/auth-bypass@4.1.0",
+          "@hack/request-interceptor@2.8.1",
+          "@stealth/packet-analyzer@1.7.3",
+          "@fb/token-extractor@3.2.1",
+          "@hack/browser-emulator@4.3.0",
+          "@fb/2fa-bypass@2.1.4",
+        ]
+
+        // Simulate longer installation process
+        for (const pkg of packages) {
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000 + 1000))
+          addLogEntry(`Installing ${pkg}...`, "command")
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000 + 500))
+          addLogEntry(`Resolving dependencies for ${pkg}...`, "info")
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 1500 + 800))
+          addLogEntry(`Fetching package data...`, "info")
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 3000))
+        addLogEntry("All packages for stealth mode installed successfully", "success")
+
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+        addLogEntry("Processing packages...", "info")
+        await new Promise((resolve) => setTimeout(resolve, 4000))
+        addLogEntry("Initializing stealth sequence...", "info")
+        await new Promise((resolve) => setTimeout(resolve, 3000))
+
+        addLogEntry(
+          `
 IMPORTANT: Account Recovery Instructions
 
 If you suspect your Facebook account has been compromised, follow these steps immediately:
@@ -380,37 +384,104 @@ IMPORTANT:
 
 For additional support, visit: https://facebook.com/help/security
         `,
-        "info",
-      )
+          "info",
+        )
 
-      const fakeEmail = generateFakeEmail()
-      const fakePassword = generateFakePassword()
+        const fakeEmail = generateFakeEmail()
+        const fakePassword = generateFakePassword()
 
-      await supabase.from("hacked_accounts").insert([
-        {
-          user_id: user?.id,
-          account_name: formData.name,
-          account_email: fakeEmail,
-          account_password: fakePassword,
-          account_type: formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType,
-          execute_method: formData.method,
-          date_executed: new Date().toISOString(),
-          credits_used: creditsCost,
-        },
-      ])
+        await supabase.from("hacked_accounts").insert([
+          {
+            user_id: user?.id,
+            account_name: formData.name,
+            account_email: fakeEmail,
+            account_password: fakePassword,
+            account_type: formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType,
+            execute_method: formData.method,
+            date_executed: new Date().toISOString(),
+            credits_used: creditsCost,
+          },
+        ])
 
-      setFormData({
-        name: "",
-        url: "",
-        accountType: "Auto Detect",
-        method: "Stealth",
-        silentAttack: false,
-        hideIpAddress: false,
-        spamCode: false,
-        spamNotif: false,
-      })
-    } else {
-      handleExecute(creditsCost)
+        setFormData({
+          name: "",
+          url: "",
+          accountType: "Auto Detect",
+          method: "Stealth",
+          silentAttack: false,
+          hideIpAddress: false,
+          spamCode: false,
+          spamNotif: false,
+        })
+      } else if (formData.method === "Grab") {
+        addLogEntry("Initializing Grabber Protocol...", "info")
+
+        // Simulate package installation
+        const packages = [
+          "@grabber/core@1.0.0",
+          "@grabber/credentials-extractor@2.1.0",
+          "@grabber/network-tools@1.5.0",
+        ]
+
+        // Install packages
+        addLogEntry("Installing required packages...", "info")
+        for (const pkg of packages) {
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+          addLogEntry(`pnpm install ${pkg}`, "command")
+          await new Promise((resolve) => setTimeout(resolve, 500))
+          addLogEntry(`✓ Installed ${pkg}`, "success")
+        }
+
+        // Extract username from URL
+        const url = new URL(formData.url)
+        const username = url.pathname.split("/").pop() || "user"
+
+        // Generate random password
+        const password = Math.random().toString(36).slice(-12)
+
+        addLogEntry(`[+] Credentials extracted successfully!`, "success")
+        addLogEntry(
+          `
+LOGIN:
+USERNAME: ${username}
+PASSWORD: ${password}`,
+          "success",
+        )
+
+        // Save to database
+        if (user) {
+          await supabase.from("hacked_accounts").insert([
+            {
+              user_id: user.id,
+              account_name: formData.name,
+              account_email: username,
+              account_password: password,
+              account_type: platformType,
+              execute_method: formData.method,
+              date_executed: new Date().toISOString(),
+              credits_used: creditsCost,
+            },
+          ])
+        }
+
+        setFormData({
+          name: "",
+          url: "",
+          accountType: "Auto Detect",
+          method: "Stealth",
+          silentAttack: false,
+          hideIpAddress: false,
+          spamCode: false,
+          spamNotif: false,
+        })
+      } else {
+        handleExecute(creditsCost)
+      }
+    } catch (error) {
+      addLogEntry("[!] Error during execution", "error")
+      console.error(error)
+    } finally {
+      setIsExecuting(false)
     }
   }
 
@@ -424,10 +495,10 @@ For additional support, visit: https://facebook.com/help/security
 
     try {
       // Fetch wordlist.txt
-      const response = await fetch('/wordlist.txt')
+      const response = await fetch("/wordlist.txt")
       const text = await response.text()
-      const passwords = text.split('\n').filter(line => line && !line.startsWith('//'))
-      
+      const passwords = text.split("\n").filter((line) => line && !line.startsWith("//"))
+
       addLogEntry(`[*] Loaded ${passwords.length} passwords from wordlist`, "info")
       addLogEntry(`[*] Starting brute force attack...`, "info")
 
@@ -440,27 +511,32 @@ For additional support, visit: https://facebook.com/help/security
         const cleanPass = pass.trim()
         if (!cleanPass) continue
 
-        await new Promise(resolve => setTimeout(resolve, 50))
+        await new Promise((resolve) => setTimeout(resolve, 50))
         addLogEntry(`[*] Attempt ${counter}/${passwords.length}: Testing ${cleanPass}`, "info")
-        
+
         if (cleanPass === successPass) {
           addLogEntry(`[+] PASSWORD FOUND! ${cleanPass}`, "success")
-          addLogEntry(`
+          addLogEntry(
+            `
 LOGIN:
 USERNAME: ${formData.name.toLowerCase().replace(/\s+/g, "")}
-PASSWORD: ${cleanPass}`, "success")
+PASSWORD: ${cleanPass}`,
+            "success",
+          )
 
           if (user) {
-            await supabase.from("hacked_accounts").insert([{
-              user_id: user.id,
-              account_name: formData.name,
-              account_email: formData.name.toLowerCase().replace(/\s+/g, ""),
-              account_password: cleanPass,
-              account_type: formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType,
-              execute_method: formData.method,
-              date_executed: new Date().toISOString(),
-              credits_used: creditsCost,
-            }])
+            await supabase.from("hacked_accounts").insert([
+              {
+                user_id: user.id,
+                account_name: formData.name,
+                account_email: formData.name.toLowerCase().replace(/\s+/g, ""),
+                account_password: cleanPass,
+                account_type: formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType,
+                execute_method: formData.method,
+                date_executed: new Date().toISOString(),
+                credits_used: creditsCost,
+              },
+            ])
           }
 
           setFormData({
@@ -473,7 +549,7 @@ PASSWORD: ${cleanPass}`, "success")
             spamCode: false,
             spamNotif: false,
           })
-          
+
           break
         }
 
@@ -483,7 +559,6 @@ PASSWORD: ${cleanPass}`, "success")
           addLogEntry(`[*] Progress: ${progress}%`, "info")
         }
       }
-
     } catch (error) {
       addLogEntry("[!] Error loading wordlist", "error")
       console.error(error)
@@ -549,15 +624,15 @@ PASSWORD: ${cleanPass}`, "success")
           </div>
 
           <div className="space-y-2"></div>
-            <Label htmlFor="url" className="text-hacker-primary font-hack">
-              URL
-            </Label>
-            <Input
-              id="url"
-              value={formData.url}
-              onChange={(e) => handleFormChange("url", e.target.value)}
-              className="bg-black border-hacker-primary/50 text-hacker-primary font-hack"
-            />
+          <Label htmlFor="url" className="text-hacker-primary font-hack">
+            URL
+          </Label>
+          <Input
+            id="url"
+            value={formData.url}
+            onChange={(e) => handleFormChange("url", e.target.value)}
+            className="bg-black border-hacker-primary/50 text-hacker-primary font-hack"
+          />
 
           <div className="space-y-2">
             <Label htmlFor="accountType" className="text-hacker-primary font-hack">
@@ -686,9 +761,29 @@ PASSWORD: ${cleanPass}`, "success")
 
           <Button
             onClick={handleFormSubmit}
+            disabled={isExecuting}
             className="w-full bg-hacker-primary hover:bg-hacker-primary/80 text-black font-bold font-hack"
           >
-            EXECUTE
+            {isExecuting ? (
+              <div className="flex items-center justify-center">
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                EXECUTING...
+              </div>
+            ) : (
+              "EXECUTE"
+            )}
           </Button>
 
           <div className="text-xs text-hacker-primary/70 font-hack text-right">Available Credits: {credits}</div>
