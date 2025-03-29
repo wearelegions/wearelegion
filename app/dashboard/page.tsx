@@ -29,18 +29,18 @@ const SUPPORTED_PLATFORMS: { [key: string]: string } = {
 }
 
 const METHOD_COSTS: { [key: string]: number } = {
-  Stealth: 150,
-  "Brute-force": 190,
-  Grab: 200,
-  Steal: 560,
-  Retrieval: 150,
+  Stealth: 200,
+  "Brute-force": 350,
+  Grab: 400,
+  Steal: 1000,
+  Retrieval: 2500,
 }
 
 const ADDITIONAL_COSTS: { [key: string]: number } = {
   silentAttack: 100,
-  hideIpAddress: 80,
-  spamCode: 100,
-  spamNotif: 100,
+  hideIpAddress: 100,
+  spamCode: 500,
+  spamNotif: 500,
 }
 
 type LogEntry = {
@@ -152,11 +152,11 @@ Available commands:
       addLogEntry(
         `
 Available hacking methods:
-- Stealth: Silent operation, minimal traces (150 credits)
-- Brute-force: Aggressive approach, higher success rate (190 credits)
-- Grab: Quick data extraction (200 credits)
-- Steal: Complete account takeover (500 credits)
-- Retrieval: Recover lost credentials (150 credits)
+- Stealth: Silent operation, minimal traces (200 credits)
+- Brute-force: Aggressive approach, higher success rate (350 credits)
+- Grab: Quick data extraction (400 credits)
+- Steal: Complete account takeover (1000 credits)
+- Retrieval: Recover lost credentials (2500 credits)
       `,
         "info",
       )

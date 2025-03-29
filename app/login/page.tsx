@@ -11,53 +11,115 @@ import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { supabase } from "@/lib/supabase"
 
+const retryWithDelay = async (fn: () => Promise<any>, retries = 3, delay = 1000) => {
+  try {
+    return await fn()
+  } catch (error) {
+    if (retries === 0) throw error
+    await new Promise(resolve => setTimeout(resolve, delay))
+    return retryWithDelay(fn, retries - 1, delay)
+  }
+}
+
+interface IpInfo {
+  ip: string
+  country: string
+  city: string
+  status: "online" | "offline"
+}
+
 export default function LoginPage() {
   const [userIndex, setUserIndex] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [ipInfo, setIpInfo] = useState<{ ip: string; country: string; city: string } | null>(null)
+  const [ipInfo, setIpInfo] = useState<IpInfo>({
+    ip: "Loading...",
+    country: "Loading...",
+    city: "Loading...",
+    status: "offline"
+  })
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     // Check if user is already logged in
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession()
-      if (data.session) {
-        router.push("/dashboard")
+      try {
+        const { data, error } = await retryWithDelay(() => supabase.auth.getSession())
+        if (error) {
+          console.error("Session check error:", error)
+          return
+        }
+        if (data?.session) {
+          router.push("/dashboard")
+        }
+      } catch (error) {
+        console.error("Session check failed:", error)
       }
     }
 
+    // Initialize Supabase auth
+    const initAuth = async () => {
+      try {
+        await supabase.auth.initialize()
+      } catch (error) {
+        console.error("Auth initialization failed:", error)
+      }
+    }
+
+    initAuth()
     checkSession()
 
-    // Fetch IP information
+    // Check online status
+    const updateOnlineStatus = () => {
+      setIpInfo(prev => ({
+        ...prev,
+        status: navigator.onLine ? "online" : "offline"
+      }))
+    }
+
+    window.addEventListener('online', updateOnlineStatus)
+    window.addEventListener('offline', updateOnlineStatus)
+
+    // Fetch IP and location information
     const fetchIpInfo = async () => {
       try {
-        // Only fetch on client side
-        if (typeof window !== "undefined") {
-          const response = await fetch("https://api.ipify.org?format=json")
-          if (!response.ok) {
-            throw new Error("Network response was not ok")
-          }
-          const data = await response.json()
-          setIpInfo({
-            ip: data.ip,
-            country: "Unknown",
-            city: "Unknown",
-          })
-        }
-      } catch (error) {
-        console.error("Error fetching IP address:", error)
-        // Set a fallback or handle error appropriately
+        // First fetch IP address
+        const ipResponse = await fetch('https://api.ipify.org?format=json')
+        if (!ipResponse.ok) throw new Error('Failed to fetch IP')
+        const { ip } = await ipResponse.json()
+
+        // Then fetch location data using ip-api.com
+        const locationResponse = await fetch(`http://ip-api.com/json/${ip}`)
+        if (!locationResponse.ok) throw new Error('Failed to fetch location')
+        const locationData = await locationResponse.json()
+
         setIpInfo({
-          ip: "Unable to fetch IP",
+          ip,
+          country: locationData.country,
+          city: locationData.city,
+          status: navigator.onLine ? "online" : "offline"
+        })
+      } catch (error) {
+        console.error("Error fetching IP/location:", error)
+        setIpInfo({
+          ip: "Failed to fetch",
           country: "Unknown",
           city: "Unknown",
+          status: navigator.onLine ? "online" : "offline"
         })
       }
     }
 
     fetchIpInfo()
+    // Update IP info every 30 seconds
+    const intervalId = setInterval(fetchIpInfo, 30000)
+
+    return () => {
+      window.removeEventListener('online', updateOnlineStatus)
+      window.removeEventListener('offline', updateOnlineStatus)
+      clearInterval(intervalId)
+    }
   }, [router])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -72,24 +134,32 @@ export default function LoginPage() {
       return
     }
 
-    const email = `${userIndex}@gmail.com`
-    
-    // Add redirectTo parameter with your domain
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`, // This will use the current domain
-      },
-    })
+    try {
+      const email = `${userIndex}@gmail.com`
+      const { error } = await retryWithDelay(() => 
+        supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/dashboard`,
+          },
+        }),
+        5, // Increase retries for login
+        2000 // Increase delay between retries
+      )
 
-    if (error) {
-      setError(error.message)
+      if (error) {
+        if (error.message.includes('Failed to fetch')) {
+          throw new Error('Network connection error. Please check your internet connection and try again.')
+        }
+        throw error
+      }
+
+      setSuccess("Access link sent to your email. Check your inbox to continue.")
+    } catch (error: any) {
+      setError(error.message || "Failed to send access link. Please try again.")
+    } finally {
       setIsLoading(false)
-      return
     }
-
-    setSuccess("Access link sent to your email. Check your inbox to continue.")
-    setIsLoading(false)
   }
 
   return (
@@ -99,6 +169,10 @@ export default function LoginPage() {
           <CardTitle className="text-2xl font-bold text-center text-hacker-primary font-hack">
             <span className="hacker-text-animation">LEGION</span>
           </CardTitle>
+            <div className="text-xs text-hacker-primary/70 text-center">
+            WE ARE ANONYMOUS. WE ARE LEGION. WE DO NOT FORGIVE. 
+            WE DO NOT FORGET. EXPECT US.
+            </div>
         </CardHeader>
         <CardContent>
           {error && (

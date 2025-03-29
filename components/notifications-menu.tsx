@@ -26,18 +26,18 @@ export function NotificationsContent() {
       title: "Limited Time Offer!",
       content: `🎉 SPECIAL PROMO ALERT! 🎉
 
-GREAT NEWS! THE ELITE PACK IS AFFORDABLE AS ₱6,999.99!
+GREAT NEWS! THE STARTER PACK IS AFFORDABLE AS ₱499.99!
 
-⚠️ Regular Price: ₱9,999.99
-🔥 Promo Price: ₱6,999.99
+⚠️ Regular Price: ₱1,599.99
+🔥 Promo Price: ₱499.99
 ⏰ Offer Ends: April 5, 2025
 
 Don't miss this incredible opportunity! Get started with your hacking journey at a fraction of the cost.
 
-GRAB IT NOW before the price reverts back to ₱9,999.00!
+GRAB IT NOW before the price reverts back to ₱1,599.99!
 
 Note: This is a limited-time offer and will not be extended.`,
-      date: "2024-03-28",
+      date: "2024-03-25",
       isPromo: true
     },
     {
