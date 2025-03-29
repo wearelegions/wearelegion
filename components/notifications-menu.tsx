@@ -1,10 +1,4 @@
 import * as React from "react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Bell } from "lucide-react"
 import { NewsModal } from "./news-modal"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
