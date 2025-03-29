@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { Wallet, ArrowUpRight, ArrowDownRight, History } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 import { AlertModal } from "@/components/alert-modal"
+import { TransactionHistoryModal } from "@/components/transaction-history-modal"
 
 type Package = {
   id: string
@@ -36,6 +37,7 @@ export default function CreditsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [alertModal, setAlertModal] = useState({ isOpen: false, title: "", message: "" })
   const [showFundsInfo, setShowFundsInfo] = useState(false)
+  const [showTransactionHistory, setShowTransactionHistory] = useState(false)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -204,6 +206,12 @@ export default function CreditsPage() {
         title="Add Funds"
         message="To add funds for purchasing credits, kindly contact your hacker."
       />
+      <TransactionHistoryModal
+        isOpen={showTransactionHistory}
+        onClose={() => setShowTransactionHistory(false)}
+        transactions={transactions}
+      />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="border border-hacker-primary/30 bg-hacker-terminal">
           <CardHeader className="border-b border-hacker-primary/30">
@@ -219,14 +227,24 @@ export default function CreditsPage() {
           <CardHeader className="border-b border-hacker-primary/30">
             <div className="flex justify-between items-center">
               <CardTitle className="text-hacker-primary font-hack">Funds Balance</CardTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowFundsInfo(true)}
-                className="text-hacker-primary hover:text-hacker-primary/80"
-              >
-                <Wallet className="h-5 w-5" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowTransactionHistory(true)}
+                  className="text-hacker-primary hover:text-hacker-primary/80"
+                >
+                  <History className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowFundsInfo(true)}
+                  className="text-hacker-primary hover:text-hacker-primary/80"
+                >
+                  <Wallet className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-6">
