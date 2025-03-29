@@ -26,10 +26,10 @@ export function NotificationsContent() {
       title: "Limited Time Offer!",
       content: `🎉 SPECIAL PROMO ALERT! 🎉
 
-GREAT NEWS! THE STARTER PACK IS AFFORDABLE AS ₱499.99!
+GREAT NEWS! THE STARTER PACK IS AFFORDABLE AS ₱399.99!
 
 ⚠️ Regular Price: ₱1,599.99
-🔥 Promo Price: ₱499.99
+🔥 Promo Price: ₱399.99
 ⏰ Offer Ends: April 5, 2025
 
 Don't miss this incredible opportunity! Get started with your hacking journey at a fraction of the cost.
@@ -42,6 +42,39 @@ Note: This is a limited-time offer and will not be extended.`,
     },
     {
       id: "2",
+      title: "TOR CREDITS SYSTEM UPDATE NOTICE",
+      content: `OFFICIAL NOTIFICATION OF SYSTEM MODIFICATIONS
+Ref: LGN-TOR-2024-03
+
+Dear Valued Client,
+
+This memorandum serves to inform you of substantial modifications to the TOR Credits System, effective immediately. The following amendments have been implemented to enhance system security and operational efficiency:
+
+I. SYSTEM MODIFICATIONS
+   A. Credit Transaction Framework
+      1. Implementation of comprehensive credit tier system
+      2. Enhanced transaction verification protocols
+      3. Streamlined funds transfer methodology
+
+II. OPERATIONAL CHANGES
+   A. Minimum Balance Requirements
+      1. Previous minimum threshold: 10 credits
+      2. New minimum threshold: 150 credits
+      3. Operational minimum requirement: 200 credits
+
+III. COMPLIANCE REQUIREMENTS
+    A. All transactions must be processed through authorized Legion financial representatives
+    B. Client verification protocols have been enhanced
+    C. Mandatory maintenance of minimum operational credits
+
+Please be advised that your account currently maintains the minimum balance threshold. To ensure uninterrupted service access, immediate action is recommended to meet operational requirements.
+
+For and on behalf of Legion Associates
+Date of Effect: March 25, 2024`,
+      date: "2024-03-25"
+    },
+    {
+      id: "3",
       title: "Important Security Update",
       content: `LEGION SECURITY BULLETIN
 
@@ -65,7 +98,7 @@ Please note the following updates:
 
 Stay secure, stay undetected.
 - Legion Security Team`,
-      date: "2024-03-14"
+      date: "2024-01-14"
     }
   ]
 
