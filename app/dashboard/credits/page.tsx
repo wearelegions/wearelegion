@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Wallet, ArrowUpRight, ArrowDownRight, History } from "lucide-react"
+import { Wallet, History } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -255,56 +255,6 @@ export default function CreditsPage() {
           </CardContent>
         </Card>
       </div>
-
-      <Card className="border border-hacker-primary/30 bg-hacker-terminal">
-        <CardHeader className="border-b border-hacker-primary/30">
-          <CardTitle className="text-hacker-primary font-hack">Transaction History</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          {isLoading ? (
-            <div className="text-center py-8">
-              <p className="text-hacker-primary font-hack">Loading transactions...</p>
-            </div>
-          ) : transactions.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-hacker-primary/70 font-hack">No transactions found</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {transactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between p-4 border border-hacker-primary/30 rounded-md bg-black/50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-full ${
-                      transaction.type === 'purchase' 
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-red-500/20 text-red-400'
-                    }`}>
-                      {transaction.type === 'purchase' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                    </div>
-                    <div>
-                      <p className="text-hacker-primary font-hack">{transaction.package_name}</p>
-                      <p className="text-hacker-primary/70 font-hack text-xs">
-                        {new Date(transaction.created_at).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-hacker-primary font-hack">{formatCurrency(transaction.amount)}</p>
-                    <p className={`font-hack text-xs ${
-                      transaction.type === 'purchase' ? 'text-green-400' : 'text-red-400'
-                    }`}>
-                      {transaction.type === 'purchase' ? '+' : '-'}{formatCredits(transaction.credits)} CREDITS
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       <Card className="border border-hacker-primary/30 bg-hacker-terminal">
         <CardHeader className="border-b border-hacker-primary/30">
