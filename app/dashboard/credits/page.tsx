@@ -193,7 +193,7 @@ export default function CreditsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <AlertModal
         isOpen={alertModal.isOpen}
         onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
@@ -212,91 +212,89 @@ export default function CreditsPage() {
         transactions={transactions}
       />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <Card className="border border-hacker-primary/30 bg-hacker-terminal">
-          <CardHeader className="border-b border-hacker-primary/30">
-            <CardTitle className="text-hacker-primary font-hack">Credits Balance</CardTitle>
+          <CardHeader className="border-b border-hacker-primary/30 p-4 sm:p-6">
+            <CardTitle className="text-hacker-primary font-hack text-base sm:text-lg">Credits Balance</CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="text-4xl font-bold text-hacker-primary font-hack">{isLoading ? "..." : credits}</div>
-            <p className="text-hacker-primary/70 font-hack text-sm mt-2">Available credits for hacking operations</p>
+          <CardContent className="p-4 sm:p-6">
+            <div className="text-2xl sm:text-4xl font-bold text-hacker-primary font-hack">{isLoading ? "..." : credits}</div>
+            <p className="text-hacker-primary/70 font-hack text-xs sm:text-sm mt-2">Available credits for hacking operations</p>
           </CardContent>
         </Card>
 
         <Card className="border border-hacker-primary/30 bg-hacker-terminal">
-          <CardHeader className="border-b border-hacker-primary/30">
+          <CardHeader className="border-b border-hacker-primary/30 p-4 sm:p-6">
             <div className="flex justify-between items-center">
-              <CardTitle className="text-hacker-primary font-hack">Funds Balance</CardTitle>
+              <CardTitle className="text-hacker-primary font-hack text-base sm:text-lg">Funds Balance</CardTitle>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setShowTransactionHistory(true)}
-                  className="text-hacker-primary hover:text-hacker-primary/80"
+                  className="text-hacker-primary hover:text-hacker-primary/80 h-8 w-8 sm:h-10 sm:w-10"
                 >
-                  <History className="h-5 w-5" />
+                  <History className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setShowFundsInfo(true)}
-                  className="text-hacker-primary hover:text-hacker-primary/80"
+                  className="text-hacker-primary hover:text-hacker-primary/80 h-8 w-8 sm:h-10 sm:w-10"
                 >
-                  <Wallet className="h-5 w-5" />
+                  <Wallet className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="text-4xl font-bold text-hacker-primary font-hack">
+          <CardContent className="p-4 sm:p-6">
+            <div className="text-2xl sm:text-4xl font-bold text-hacker-primary font-hack">
               {isLoading ? "..." : formatCurrency(funds)}
             </div>
-            <p className="text-hacker-primary/70 font-hack text-sm mt-2">Available funds for purchasing credits</p>
+            <p className="text-hacker-primary/70 font-hack text-xs sm:text-sm mt-2">Available funds for purchasing credits</p>
           </CardContent>
         </Card>
       </div>
 
       <Card className="border border-hacker-primary/30 bg-hacker-terminal">
-        <CardHeader className="border-b border-hacker-primary/30">
-          <CardTitle className="text-hacker-primary font-hack">Available Packages</CardTitle>
+        <CardHeader className="border-b border-hacker-primary/30 p-4 sm:p-6">
+          <CardTitle className="text-hacker-primary font-hack text-base sm:text-lg">Available Packages</CardTitle>
         </CardHeader>
-        <CardContent className="p-4">
+        <CardContent className="p-4 sm:p-6">
           {isLoading ? (
-            <div className="text-center py-8">
-              <p className="text-hacker-primary font-hack">Loading packages...</p>
+            <div className="text-center py-6 sm:py-8">
+              <p className="text-hacker-primary font-hack text-sm sm:text-base">Loading packages...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {packages.map((pkg) => (
                 <div
                   key={pkg.id || pkg.name}
-                  className={`relative border border-hacker-primary/30 rounded-md p-4 bg-black/50 ${
+                  className={`relative border border-hacker-primary/30 rounded-md p-3 sm:p-4 bg-black/50 ${
                     pkg.name === "STARTER PACK" ? "animate-pulse border-hacker-accent" : ""
                   }`}
                 >
                   {pkg.name === "STARTER PACK" && (
-                    <div className="absolute -top-3 -right-3 bg-hacker-accent text-black px-2 py-1 rounded-md text-xs font-hack animate-pulse">
+                    <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 bg-hacker-accent text-black px-1.5 py-0.5 sm:px-2 sm:py-1 rounded text-[10px] sm:text-xs font-hack animate-pulse">
                       PROMO
                     </div>
                   )}
-                  <h3
-                    className={`text-lg font-bold font-hack ${
-                      pkg.name === "STARTER PACK" ? "text-hacker-accent" : "text-hacker-primary"
-                    }`}
-                  >
+                  <h3 className={`text-base sm:text-lg font-bold font-hack break-words ${
+                    pkg.name === "STARTER PACK" ? "text-hacker-accent" : "text-hacker-primary"
+                  }`}>
                     {pkg.name}
                   </h3>
-                  <div className="mt-2 text-xl font-bold text-hacker-primary font-hack">
+                  <div className="mt-2 text-lg sm:text-xl font-bold text-hacker-primary font-hack">
                     {formatCurrency(pkg.price)}
                   </div>
-                  <div className="text-hacker-primary font-hack">
+                  <div className="text-sm sm:text-base text-hacker-primary font-hack">
                     {formatCredits(pkg.credits)} CREDITS
                   </div>
-                  <p className="text-hacker-primary/70 font-hack text-xs mt-2">
+                  <p className="text-[10px] sm:text-xs text-hacker-primary/70 font-hack mt-2">
                     BOUGHT BY {pkg.bought_by.toLocaleString()} USERS
                   </p>
                   <Button
-                    className="w-full mt-4 bg-hacker-primary hover:bg-hacker-primary/80 text-black font-bold font-hack"
+                    className="w-full mt-3 sm:mt-4 bg-hacker-primary hover:bg-hacker-primary/80 text-black font-bold font-hack text-xs sm:text-sm h-8 sm:h-10"
                     onClick={() => handlePurchase(pkg)}
                     disabled={funds < pkg.price}
                   >
