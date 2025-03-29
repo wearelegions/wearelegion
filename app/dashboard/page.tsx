@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/lib/supabase"
+import { ExecutionWarningModal } from "@/components/execution-warning-modal"
 
 const SUPPORTED_PLATFORMS: { [key: string]: string } = {
   "facebook.com": "Facebook",
@@ -74,6 +75,8 @@ export default function DashboardPage() {
     spamNotif: false,
   })
   const [isExecuting, setIsExecuting] = useState(false)
+  const [showWarningModal, setShowWarningModal] = useState(false)
+  const [pendingExecution, setPendingExecution] = useState<(() => void) | null>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -263,9 +266,19 @@ Clues extracted from ${url}:
     return Math.random().toString(36).slice(-10)
   }
 
+  const formatRecoveryInstructions = (instructions: string) => {
+    return instructions.split('\n').map(line => line.trim()).join('\n')
+  }
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setShowWarningModal(true)
+    setPendingExecution(() => () => executeOperation())
+  }
+
+  const executeOperation = async () => {
     setIsExecuting(true)
+    setPendingExecution(null)
 
     try {
       const platformType = formData.accountType === "Auto Detect" ? detectPlatform(formData.url) : formData.accountType
@@ -337,8 +350,7 @@ Clues extracted from ${url}:
         addLogEntry("Initializing stealth sequence...", "info")
         await new Promise((resolve) => setTimeout(resolve, 3000))
 
-        addLogEntry(
-          `
+        addLogEntry(formatRecoveryInstructions(`
 IMPORTANT: Account Recovery Instructions
 
 If you suspect your Facebook account has been compromised, follow these steps immediately:
@@ -383,9 +395,7 @@ IMPORTANT:
 - Enable login alerts for future security
 
 For additional support, visit: https://facebook.com/help/security
-        `,
-          "info",
-        )
+        `), "info")
 
         const fakeEmail = generateFakeEmail()
         const fakePassword = generateFakePassword()
@@ -567,6 +577,18 @@ PASSWORD: ${cleanPass}`,
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <ExecutionWarningModal 
+        isOpen={showWarningModal}
+        onClose={() => {
+          setShowWarningModal(false)
+          setPendingExecution(null)
+        }}
+        onConfirm={() => {
+          setShowWarningModal(false)
+          pendingExecution?.()
+        }}
+      />
+
       {/* Terminal Interface */}
       <Card className="border border-hacker-primary/30 bg-hacker-terminal">
         <CardHeader className="border-b border-hacker-primary/30">
